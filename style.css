@@ -339,3 +339,23 @@ body {
     text-align: center;
     margin: 2rem 0;
 }
+.loader {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.spinner {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid #f3f3f3;
+    border-radius: 50%;
+    border-top-color: #3498db;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
