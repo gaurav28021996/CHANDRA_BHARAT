@@ -2,7 +2,7 @@
 const CONFIG = {
     API_KEY: '51c83cd1198f1a137e448732abf813ef',
     API_ENDPOINT: 'https://gnews.io/api/v4/top-headlines',
-    PLACEHOLDER_IMAGE: 'data:image/png;base64,iVBORw0KGgo...', // Short base64
+    PLACEHOLDER_IMAGE: 'data:image/png;base64,iVBORw0KGgo...', 
     CATEGORIES: {
         general: { title: 'Top Stories', endpoint: 'general' },
         politics: { title: 'Politics', endpoint: 'politics' },
@@ -48,7 +48,7 @@ const newsService = {
 
         try {
             const response = await fetch(
-                `${CONFIG.API_ENDPOINT}?category=${category}&token=${CONFIG.API_KEY}&lang=en`
+                `${CONFIG.API_ENDPOINT}?category=${category}&token=${CONFIG.51c83cd1198f1a137e448732abf813ef}&lang=en`
             );
             
             if (!response.ok) throw new Error('API Error');
