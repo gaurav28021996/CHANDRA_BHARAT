@@ -1,78 +1,91 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHANDRA BHARAT - Latest News Updates</title>
-    <meta name="description" content="Stay updated with CHANDRA BHARAT - Your trusted source for breaking news, politics, technology, and entertainment">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>चंद्र भारत - ताज़ा समाचार और अपडेट</title>
+    <meta name="description" content="चंद्र भारत - भारतीय राजनीति, प्रौद्योगिकी और मनोरंजन के ताज़ा समाचारों का विश्वसनीय स्रोत">
     
     <!-- SEO Meta Tags -->
-    <meta name="keywords" content="news, india news, breaking news, latest news, politics, technology">
-    <meta property="og:title" content="CHANDRA BHARAT News">
+    <meta name="keywords" content="समाचार, भारत समाचार, ताज़ा खबर, राजनीति, प्रौद्योगिकी">
+    <meta property="og:title" content="चंद्र भारत समाचार">
     <meta property="og:type" content="website">
     
     <!-- Styles -->
     <link rel="stylesheet" href="style.css">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     
-    <!-- AdSense Script -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
-     crossorigin="anonymous"></script>
+    <!-- AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 </head>
 <body>
     <!-- Header -->
     <header class="header">
         <div class="container header-container">
             <div class="logo">
-                <h1>CHANDRA BHARAT</h1>
-                <p class="logo-subtitle">Trusted News Network</p>
+                <h1>चंद्र भारत</h1>
+                <p class="logo-subtitle">विश्वसनीय समाचार नेटवर्क</p>
             </div>
             
             <!-- Navigation -->
-            <nav class="nav">
-                <button class="menu-toggle" aria-label="Toggle navigation">
+            <nav class="nav" aria-label="Main navigation">
+                <button class="menu-toggle" aria-label="मेनू दिखाएँ/छिपाएँ" aria-expanded="false">
                     <span class="bar"></span>
                     <span class="bar"></span>
                     <span class="bar"></span>
                 </button>
                 <ul class="nav-list">
-                    <li><a href="#" class="nav-link active" data-category="general">Home</a></li>
-                    <li><a href="#" class="nav-link" data-category="politics">Politics</a></li>
-                    <li><a href="#" class="nav-link" data-category="technology">Technology</a></li>
-                    <li><a href="#" class="nav-link" data-category="entertainment">Entertainment</a></li>
-                    <li><a href="#" class="nav-link" data-category="sports">Sports</a></li>
+                    <li><a href="#" class="nav-link active" data-category="general" aria-current="page">मुख्य</a></li>
+                    <li><a href="#" class="nav-link" data-category="politics">राजनीति</a></li>
+                    <li><a href="#" class="nav-link" data-category="technology">प्रौद्योगिकी</a></li>
+                    <li><a href="#" class="nav-link" data-category="entertainment">मनोरंजन</a></li>
+                    <li><a href="#" class="nav-link" data-category="sports">खेल</a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
+    <!-- Language Switcher -->
+    <div class="lang-switcher">
+        <button data-lang="hi" class="lang-btn active" aria-label="हिन्दी में देखें">हिन्दी</button>
+        <button data-lang="en" class="lang-btn" aria-label="View in English">English</button>
+    </div>
+
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Featured News Section -->
-        <section class="featured-news">
+        <!-- Featured Article -->
+        <section class="featured-news" aria-labelledby="featured-title">
             <div class="container">
                 <div class="featured-card">
                     <div class="featured-content">
-                        <span class="category-tag">Breaking News</span>
-                        <h2 id="featured-title">Loading Latest News...</h2>
+                        <span class="category-tag">ताज़ा खबर</span>
+                        <h2 id="featured-title">समाचार लोड हो रहे हैं...</h2>
                         <p id="featured-description" class="featured-excerpt"></p>
-                        <a href="#" id="featured-link" class="read-more">Read More →</a>
+                        <a href="#" id="featured-link" class="read-more" aria-label="पूरा लेख पढ़ें">
+                            पूरा लेख पढ़ें →
+                        </a>
                     </div>
                     <div class="featured-media">
-                        <img id="featured-img" src="placeholder.jpg" alt="Featured News" class="featured-image" loading="lazy">
+                        <img id="featured-img" src="data:image/png;base64,iVBORw0KGgo..." 
+                             alt="मुख्य समाचार छवि" 
+                             loading="lazy"
+                             class="featured-image">
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Category News Grid -->
-        <section class="category-news">
+        <!-- News Grid -->
+        <section class="category-news" aria-labelledby="category-title">
             <div class="container">
-                <h2 class="category-heading" id="category-title">Latest Updates</h2>
-                <div class="news-grid" id="news-container">
-                    <div class="loader">Loading News...</div>
+                <h2 class="category-heading" id="category-title">ताज़ा अपडेट</h2>
+                <div class="news-grid" id="news-container" role="list">
+                    <div class="loader" role="alert" aria-busy="true">
+                        <div class="spinner"></div>
+                        समाचार लोड हो रहे हैं...
+                    </div>
                 </div>
             </div>
         </section>
@@ -82,34 +95,37 @@
     <footer class="footer">
         <div class="container footer-container">
             <div class="footer-column about-column">
-                <h3 class="footer-heading">About CHANDRA BHARAT</h3>
-                <p class="footer-text">Your trusted source for accurate and timely news updates.</p>
+                <h3 class="footer-heading">चंद्र भारत के बारे में</h3>
+                <p class="footer-text">सटीक और समय पर समाचार अपडेट का आपका विश्वसनीय स्रोत</p>
             </div>
             
             <div class="footer-column links-column">
-                <h3 class="footer-heading">Quick Links</h3>
-                <ul class="footer-links">
-                    <li><a href="#privacy" class="footer-link">Privacy Policy</a></li>
-                    <li><a href="#terms" class="footer-link">Terms of Service</a></li>
-                    <li><a href="#careers" class="footer-link">Careers</a></li>
+                <h3 class="footer-heading">त्वरित लिंक</h3>
+                <ul class="footer-links" role="list">
+                    <li><a href="#privacy" class="footer-link">गोपनीयता नीति</a></li>
+                    <li><a href="#terms" class="footer-link">सेवा की शर्तें</a></li>
+                    <li><a href="#careers" class="footer-link">करियर</a></li>
                 </ul>
             </div>
             
             <div class="footer-column newsletter-column">
-                <h3 class="footer-heading">Stay Updated</h3>
-                <form class="subscribe-form">
-                    <input type="email" class="subscribe-input" placeholder="Enter your email" required>
-                    <button type="submit" class="subscribe-btn">Subscribe</button>
+                <h3 class="footer-heading">नवीनतम अपडेट पाएं</h3>
+                <form class="subscribe-form" aria-label="सब्सक्राइब फॉर्म">
+                    <input type="email" class="subscribe-input" 
+                           placeholder="ईमेल दर्ज करें" 
+                           required
+                           aria-required="true">
+                    <button type="submit" class="subscribe-btn">सब्सक्राइब</button>
                 </form>
             </div>
         </div>
         
         <div class="copyright">
-            <p class="copyright-text">© 2024 CHANDRA BHARAT. All rights reserved.</p>
+            <p class="copyright-text">© २०२४ चंद्र भारत। सर्वाधिकार सुरक्षित।</p>
         </div>
     </footer>
 
     <!-- Scripts -->
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
 </body>
 </html>
