@@ -48,7 +48,7 @@ const newsService = {
 
         try {
             const response = await fetch(
-                `${CONFIG.API_ENDPOINT}?category=${category}&token=${CONFIG.API_KEY}&lang=en`
+                `${CONFIG.API_ENDPOINT}?category=${category}&country=in&token=${CONFIG.API_KEY}&lang=en`
             );
             
             if (!response.ok) throw new Error('API Error');
