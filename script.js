@@ -15,7 +15,7 @@ const CONFIG = {
 
 // State Management
 let state = {
-    currentCategory: 'general',
+    currentCategory: 'politics',
     cache: new Map(),
     isFetching: false
 };
