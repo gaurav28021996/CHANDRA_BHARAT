@@ -47,7 +47,7 @@ body {
   color: white;
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 1200;
   box-shadow: var(--shadow-md);
   padding: 1rem 0;
 }
