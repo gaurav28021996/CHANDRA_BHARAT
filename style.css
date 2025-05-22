@@ -169,22 +169,11 @@ body {
   background: linear-gradient(to right, white 95%, transparent 100%);
 }
 
+/* ===== Featured Image Responsive Fix ===== */
 .featured-media {
-  flex: 1;
-  min-width: 45%;
   position: relative;
-  overflow: hidden;
-}
-
-.featured-media::before {
-  content: '';
-  position: absolute;
-  left: -5%;
-  top: 0;
-  height: 95%;
-  width: 20%;
-  background: linear-gradient(to right, rgba(255,255,255,0), white);
-  z-index: 1;
+  min-height: 300px; /* Base mobile height */
+  flex: 1;
 }
 
 .featured-image {
@@ -195,6 +184,41 @@ body {
   transition: transform 0.3s ease;
 }
 
+/* Desktop */
+@media (min-width: 768px) {
+  .featured-media {
+    min-height: 400px; /* Taller height for desktop */
+    max-height: 60vh; /* Prevent becoming too tall */
+  }
+}
+
+/* Mobile Optimization */
+@media (max-width: 767px) {
+  .featured-media {
+    min-height: 250px;
+    max-height: 50vh;
+    width: 100%;
+    order: -1; /* Move image above text on mobile */
+  }
+  
+  .featured-content {
+    padding: 1.5rem;
+  }
+}
+
+/* Ultra-wide screens */
+@media (min-width: 1440px) {
+  .featured-media {
+    max-height: 700px;
+  }
+}
+
+/* Maintain aspect ratio */
+@media (orientation: landscape) and (max-width: 768px) {
+  .featured-media {
+    max-height: 80vh;
+  }
+}
 .featured-card:hover .featured-image {
   transform: scale(1.03);
 }
