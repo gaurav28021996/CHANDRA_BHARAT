@@ -1,6 +1,6 @@
 // Configuration
 const CONFIG = {
-    API_KEY: '51c83cd1198f1a137e448732abf813ef',
+    API_KEY: 'c5db32902c48966fdc2e473eff6036bc',
     API_ENDPOINT: 'https://gnews.io/api/v4/top-headlines',
     PLACEHOLDER_IMAGE: 'data:image/png;base64,iVBORw0KGgo...',
     LANGUAGES: {
