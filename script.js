@@ -2,15 +2,20 @@
 const CONFIG = {
     API_KEY: '51c83cd1198f1a137e448732abf813ef',
     API_ENDPOINT: 'https://gnews.io/api/v4/top-headlines',
-    PLACEHOLDER_IMAGE: 'data:image/png;base64,iVBORw0KGgo...', 
-    CATEGORIES: {
-        general: { title: 'Top Stories', endpoint: 'general' },
-        politics: { title: 'Politics', endpoint: 'politics' },
-        technology: { title: 'Technology', endpoint: 'technology' },
-        entertainment: { title: 'Entertainment', endpoint: 'entertainment' },
-        sports: { title: 'Sports', endpoint: 'sports' }
+    PLACEHOLDER_IMAGE: 'data:image/png;base64,iVBORw0KGgo...',
+    LANGUAGES: {
+        en: 'English',
+        hi: 'हिन्दी' // Hindi language support
     },
-    CACHE_TTL: 300000 // 5 minutes
+    CATEGORIES: {
+        general: { title: 'टॉप समाचार', endpoint: 'general' }, // Hindi translation
+        politics: { title: 'राजनीति', endpoint: 'politics' },
+        technology: { title: 'प्रौद्योगिकी', endpoint: 'technology' },
+        entertainment: { title: 'मनोरंजन', endpoint: 'entertainment' },
+        sports: { title: 'खेल', endpoint: 'sports' }
+    },
+    CACHE_TTL: 300000,
+    DEFAULT_LANG: 'hi' // Set default language to Hindi
 };
 
 // State Management
@@ -37,7 +42,7 @@ const sanitizeHTML = (str) => {
     return div.innerHTML;
 };
 
-// API Service
+// Modified API Service with language support
 const newsService = {
     async fetchNews(category) {
         const cacheKey = `${category}_${new Date().getMinutes()}`;
@@ -48,7 +53,7 @@ const newsService = {
 
         try {
             const response = await fetch(
-                `${CONFIG.API_ENDPOINT}?category=${category}&country=in&token=${CONFIG.API_KEY}&lang=en`
+                `${CONFIG.API_ENDPOINT}?category=${category}&country=in&token=${CONFIG.API_KEY}&lang=${CONFIG.DEFAULT_LANG}`
             );
             
             if (!response.ok) throw new Error('API Error');
