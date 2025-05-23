@@ -1,254 +1,259 @@
-// Configuration
-const CONFIG = {
-    API_KEY: 'c5db32902c48966fdc2e473eff6036bc',
-    API_ENDPOINT: 'https://gnews.io/api/v4/top-headlines',
-    PLACEHOLDER_IMAGE: 'data:image/png;base64,iVBORw0KGgo...',
-    LANGUAGES: {
-        en: 'English',
-        hi: 'हिन्दी' // Hindi language support
-    },
-    CATEGORIES: {
-        general: { title: 'टॉप समाचार', endpoint: 'general' }, // Hindi translation
-        politics: { title: 'राजनीति', endpoint: 'politics' },
-        technology: { title: 'प्रौद्योगिकी', endpoint: 'technology' },
-        entertainment: { title: 'मनोरंजन', endpoint: 'entertainment' },
-        sports: { title: 'खेल', endpoint: 'sports' }
-    },
-    CACHE_TTL: 300000,
-    DEFAULT_LANG: 'hi' // Set default language to Hindi
-};
+class MobileMenu {
+  constructor() {
+    this.menuToggle = document.querySelector('.menu-toggle');
+    this.navList = document.querySelector('.nav-list');
+    this.body = document.body;
+    this.init();
+  }
 
-// State Management
-let state = {
-    currentCategory: 'politics',
-    cache: new Map(),
-    isFetching: false
-};
+  init() {
+    this.addEventListeners();
+  }
 
-// DOM Elements
-const dom = {
-    newsContainer: document.getElementById('news-container'),
-    featuredSection: document.querySelector('.featured-news'),
-    categoryTitle: document.getElementById('category-title'),
-    navLinks: document.querySelectorAll('.nav-link'),
-    menuToggle: document.querySelector('.menu-toggle'),
-    navList: document.querySelector('.nav-list')
-};
+  addEventListeners() {
+    this.menuToggle.addEventListener('click', (e) => this.toggleMenu(e));
+    document.addEventListener('click', (e) => this.handleOutsideClick(e));
+    window.addEventListener('resize', () => this.handleResize());
+  }
 
-// Sanitization Helper
-const sanitizeHTML = (str) => {
+  toggleMenu(e) {
+    e.stopPropagation();
+    this.menuToggle.classList.toggle('active');
+    this.navList.classList.toggle('active');
+    this.body.style.overflow = this.navList.classList.contains('active') ? 'hidden' : 'auto';
+  }
+
+  handleOutsideClick(e) {
+    if (!e.target.closest('.nav') && !e.target.closest('.menu-toggle')) {
+      this.closeMenu();
+    }
+  }
+
+  handleResize() {
+    if (window.innerWidth > 768) {
+      this.closeMenu();
+    }
+  }
+
+  closeMenu() {
+    this.menuToggle.classList.remove('active');
+    this.navList.classList.remove('active');
+    this.body.style.overflow = 'auto';
+  }
+}
+
+class NewsFetcher {
+  constructor() {
+    this.config = {
+      API_KEY: 'c5db32902c48966fdc2e473eff6036bc',
+      API_ENDPOINT: 'https://gnews.io/api/v4/top-headlines',
+      CACHE_TTL: 300000,
+      DEFAULT_LANG: 'hi'
+    };
+    this.cache = new Map();
+    this.state = {
+      currentCategory: 'general',
+      isFetching: false
+    };
+  }
+
+  async fetchNews(category) {
+    if (this.state.isFetching) return;
+    this.state.isFetching = true;
+
+    const cacheKey = `${category}_${new Date().getMinutes()}`;
+    
+    try {
+      if (this.cache.has(cacheKey)) {
+        return this.cache.get(cacheKey);
+      }
+
+      const response = await fetch(
+        `${this.config.API_ENDPOINT}?category=${category}&country=in&lang=${this.config.DEFAULT_LANG}&token=${this.config.API_KEY}`
+      );
+
+      if (!response.ok) throw new Error('API Error');
+      
+      const data = await response.json();
+      this.cache.set(cacheKey, data);
+      return data;
+    } catch (error) {
+      console.error('News fetch error:', error);
+      throw error;
+    } finally {
+      this.state.isFetching = false;
+    }
+  }
+}
+
+class UIUpdater {
+  constructor() {
+    this.newsContainer = document.getElementById('news-container');
+    this.featuredSection = document.querySelector('.featured-news');
+    this.categoryTitle = document.getElementById('category-title');
+    this.navLinks = document.querySelectorAll('.nav-link');
+  }
+
+  async updateUI(data, category) {
+    try {
+      this.showLoader();
+      this.updateActiveCategory(category);
+      
+      const featuredArticle = data.articles[0];
+      this.updateFeaturedArticle(featuredArticle);
+      this.updateNewsGrid(data.articles.slice(1));
+    } catch (error) {
+      this.showError();
+    }
+  }
+
+  updateFeaturedArticle(article) {
+    this.featuredSection.innerHTML = `
+      <div class="featured-card">
+        <div class="featured-content">
+          <span class="category-tag">${article.source.name}</span>
+          <h2>${this.sanitizeHTML(article.title)}</h2>
+          <p>${this.sanitizeHTML(article.description || 'विवरण के लिए पूरा लेख पढ़ें')}</p>
+          <a href="${this.sanitizeHTML(article.url)}" target="_blank" rel="noopener" class="read-more">
+            पूरा लेख पढ़ें →
+          </a>
+        </div>
+        <div class="featured-media">
+          <img src="${article.image || 'placeholder.jpg'}" 
+               alt="${this.sanitizeHTML(article.title)}"
+               loading="lazy"
+               class="featured-image">
+        </div>
+      </div>
+    `;
+  }
+
+  updateNewsGrid(articles) {
+    this.newsContainer.innerHTML = articles.map(article => `
+      <article class="news-card">
+        <div class="news-image">
+          <img src="${article.image || 'placeholder.jpg'}" 
+               alt="${this.sanitizeHTML(article.title)}"
+               loading="lazy">
+        </div>
+        <div class="news-content">
+          <h3>${this.sanitizeHTML(article.title)}</h3>
+          <p>${this.sanitizeHTML(article.description || '')}</p>
+          <div class="article-meta">
+            <span class="source">${this.sanitizeHTML(article.source.name)}</span>
+            <span class="published-at">${new Date(article.publishedAt).toLocaleDateString('hi-IN')}</span>
+          </div>
+          <a href="${this.sanitizeHTML(article.url)}" target="_blank" rel="noopener" class="read-more">
+            अधिक पढ़ें →
+          </a>
+        </div>
+      </article>
+    `).join('');
+  }
+
+  sanitizeHTML(str) {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
-};
+  }
 
-// Modified API Service with language support
-const newsService = {
-    async fetchNews(category) {
-        const cacheKey = `${category}_${new Date().getMinutes()}`;
-        
-        if (state.cache.has(cacheKey)) {
-            return state.cache.get(cacheKey);
-        }
+  showLoader() {
+    this.newsContainer.innerHTML = `
+      <div class="loader">
+        <div class="spinner"></div>
+        समाचार लोड हो रहे हैं...
+      </div>
+    `;
+  }
 
-        try {
-            const response = await fetch(
-                `${CONFIG.API_ENDPOINT}?category=${category}&country=in&token=${CONFIG.API_KEY}&lang=${CONFIG.DEFAULT_LANG}`
-            );
-            
-            if (!response.ok) throw new Error('API Error');
-            
-            const data = await response.json();
-            state.cache.set(cacheKey, data);
-            
-            return data;
-        } catch (error) {
-            console.error('Fetch error:', error);
-            throw error;
-        }
-    }
-};
+  showError() {
+    this.newsContainer.innerHTML = `
+      <div class="error-message">
+        <h3>⚠️ समाचार लोड नहीं हो पाए</h3>
+        <p>कृपया बाद में पुनः प्रयास करें</p>
+        <button onclick="window.location.reload()">पुनः लोड करें</button>
+      </div>
+    `;
+  }
 
-// UI Components
-const uiComponents = {
-    showLoader() {
-        dom.newsContainer.innerHTML = `
-            <div class="loader">
-                <div class="spinner"></div>
-                Loading latest news...
-            </div>
-        `;
-    },
+  updateActiveCategory(category) {
+    this.navLinks.forEach(link => {
+      const isActive = link.dataset.category === category;
+      link.classList.toggle('active', isActive);
+      link.setAttribute('aria-current', isActive ? 'page' : 'false');
+    });
+    this.categoryTitle.textContent = `${category} समाचार`;
+  }
+}
 
-    createFeaturedCard(article) {
-        return `
-            <div class="featured-card">
-                <div class="featured-content">
-                    <span class="category-tag">
-                        ${sanitizeHTML(CONFIG.CATEGORIES[state.currentCategory].title)}
-                    </span>
-                    <h2>${sanitizeHTML(article.title)}</h2>
-                    <p>${sanitizeHTML(article.description || 'Read full story for details')}</p>
-                    <a href="${sanitizeHTML(article.url)}" 
-                       target="_blank" 
-                       rel="noopener"
-                       class="read-more">
-                        Read Full Article →
-                    </a>
-                </div>
-                <div class="featured-media">
-                    <img src="${article.image || CONFIG.PLACEHOLDER_IMAGE}" 
-                         alt="${sanitizeHTML(article.title)}"
-                         onerror="this.src='${CONFIG.PLACEHOLDER_IMAGE}'">
-                </div>
-            </div>
-        `;
-    },
+class LanguageSwitcher {
+  constructor() {
+    this.buttons = document.querySelectorAll('.lang-btn');
+    this.init();
+  }
 
-    createNewsCard(article) {
-        return `
-            <article class="news-card" aria-label="${sanitizeHTML(article.title)}">
-                <div class="news-image">
-                    <img src="${article.image || CONFIG.PLACEHOLDER_IMAGE}" 
-                         alt="${sanitizeHTML(article.title)}"
-                         loading="lazy"
-                         onerror="this.src='${CONFIG.PLACEHOLDER_IMAGE}'">
-                </div>
-                <div class="news-content">
-                    <h3>${sanitizeHTML(article.title)}</h3>
-                    <p>${sanitizeHTML(article.description || '')}</p>
-                    <div class="article-meta">
-                        <span class="source">${sanitizeHTML(article.source.name)}</span>
-                        <span class="published-at">
-                            ${new Date(article.publishedAt).toLocaleDateString()}
-                        </span>
-                    </div>
-                    <a href="${sanitizeHTML(article.url)}" 
-                       target="_blank" 
-                       rel="noopener"
-                       class="read-more">
-                        Read More →
-                    </a>
-                </div>
-            </article>
-        `;
-    }
-};
+  init() {
+    this.buttons.forEach(button => {
+      button.addEventListener('click', (e) => this.handleLanguageChange(e));
+    });
+  }
 
-// Event Handlers
-const eventHandlers = {
-    handleCategoryClick: (e) => {
+  handleLanguageChange(e) {
+    const lang = e.target.dataset.lang;
+    this.buttons.forEach(btn => btn.classList.remove('active'));
+    e.target.classList.add('active');
+    document.documentElement.lang = lang;
+    // Add language change logic here
+  }
+}
+
+// Initialize Application
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    const mobileMenu = new MobileMenu();
+    const newsFetcher = new NewsFetcher();
+    const uiUpdater = new UIUpdater();
+    const languageSwitcher = new LanguageSwitcher();
+
+    // Handle category clicks
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', async (e) => {
         e.preventDefault();
         const category = e.target.dataset.category;
-        
-        if (state.isFetching || category === state.currentCategory) return;
-        
-        state.currentCategory = category;
-        newsController.loadCategoryNews();
-    },
-
-    handleMenuToggle: () => {
-        dom.navList.classList.toggle('active');
-        dom.menuToggle.setAttribute('aria-expanded', 
-            dom.navList.classList.contains('active'));
-    }
-};
-
-// Main Controller
-const newsController = {
-    async loadCategoryNews() {
         try {
-            state.isFetching = true;
-            uiComponents.showLoader();
-            this.updateActiveCategory();
-            
-            const data = await newsService.fetchNews(state.currentCategory);
-            
-            dom.featuredSection.innerHTML = uiComponents.createFeaturedCard(data.articles[0]);
-            dom.newsContainer.innerHTML = data.articles.slice(1).map(uiComponents.createNewsCard).join('');
-            
+          const data = await newsFetcher.fetchNews(category);
+          uiUpdater.updateUI(data, category);
         } catch (error) {
-            dom.newsContainer.innerHTML = `
-                <div class="error-message" role="alert">
-                    <h3>⚠️ News unavailable</h3>
-                    <p>Please try again later</p>
-                    <button onclick="newsController.loadCategoryNews()">Retry</button>
-                </div>
-            `;
-        } finally {
-            state.isFetching = false;
+          uiUpdater.showError();
         }
-    },
-
-    updateActiveCategory() {
-        dom.navLinks.forEach(link => {
-            const isActive = link.dataset.category === state.currentCategory;
-            link.classList.toggle('active', isActive);
-            link.setAttribute('aria-current', isActive ? 'page' : 'false');
-        });
-        
-        dom.categoryTitle.textContent = 
-            `${CONFIG.CATEGORIES[state.currentCategory].title} News`;
-    }
-};
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    // Event Listeners
-    dom.navLinks.forEach(link => {
-        link.addEventListener('click', eventHandlers.handleCategoryClick);
+      });
     });
-    
-    dom.menuToggle.addEventListener('click', eventHandlers.handleMenuToggle);
-    
-    // Initial Load
-    newsController.loadCategoryNews();
-    
-    // Auto-refresh
-    setInterval(() => {
-        if (!document.hidden) newsController.loadCategoryNews();
-    }, 1800000);
-});
 
-document.addEventListener('DOMContentLoaded', () => {
-  const menuToggle = document.querySelector('.menu-toggle');
-  const navList = document.querySelector('.nav-list');
-  const body = document.body;
-
-  // Toggle Menu
-  menuToggle.addEventListener('click', (e) => {
-    e.stopPropagation();
-    menuToggle.classList.toggle('active');
-    navList.classList.toggle('active');
-    body.style.overflow = navList.classList.contains('active') ? 'hidden' : 'auto';
-  });
-
-  // Close menu on click outside
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.nav') && !e.target.closest('.menu-toggle')) {
-      menuToggle.classList.remove('active');
-      navList.classList.remove('active');
-      body.style.overflow = 'auto';
-    }
-  });
-
-  // Close menu on resize
-  window.addEventListener('resize', () => {
-    if (window.innerWidth > 768) {
-      menuToggle.classList.remove('active');
-      navList.classList.remove('active');
-      body.style.overflow = 'auto';
-    }
-  });
-
-  // Smooth scroll for anchor links
-  document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', (e) => {
-      if (window.innerWidth <= 768) {
-        menuToggle.classList.remove('active');
-        navList.classList.remove('active');
-        body.style.overflow = 'auto';
+    // Auto-refresh news
+    setInterval(async () => {
+      if (!document.hidden) {
+        try {
+          const data = await newsFetcher.fetchNews(newsFetcher.state.currentCategory);
+          uiUpdater.updateUI(data, newsFetcher.state.currentCategory);
+        } catch (error) {
+          console.error('Auto-refresh failed:', error);
+        }
       }
-    });
-  });
+    }, 1800000);
+
+    // Initial load
+    newsFetcher.fetchNews('general')
+      .then(data => uiUpdater.updateUI(data, 'general'))
+      .catch(error => uiUpdater.showError());
+
+  } catch (error) {
+    console.error('Initialization error:', error);
+    document.body.innerHTML = `
+      <div class="error-message">
+        <h3>⚠️ एप्लिकेशन लोड नहीं हो पाया</h3>
+        <p>कृपया पेज रीलोड करें या बाद में पुनः प्रयास करें</p>
+        <button onclick="window.location.reload()">पुनः लोड करें</button>
+      </div>
+    `;
+  }
 });
