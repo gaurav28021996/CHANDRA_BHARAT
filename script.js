@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(() => {
         if (!document.hidden) newsController.loadCategoryNews();
     }, 1800000);
-};
+});
 
 document.addEventListener('DOMContentLoaded', () => {
   const menuToggle = document.querySelector('.menu-toggle');
