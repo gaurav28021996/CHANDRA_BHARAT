@@ -428,3 +428,39 @@ body {
   gap: 0.5rem;
   z-index: 1000;
 }
+
+/* Privacy Policy Styles */
+.privacy-policy {
+  padding: 3rem 0;
+  line-height: 1.7;
+}
+
+.privacy-policy h1 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+}
+
+.privacy-policy h2 {
+  color: var(--primary-color);
+  margin: 2rem 0 1rem;
+  font-size: 1.5rem;
+}
+
+.privacy-policy h3 {
+  margin: 1.5rem 0 0.5rem;
+}
+
+.privacy-policy ul {
+  padding-left: 2rem;
+  margin: 1rem 0;
+}
+
+.privacy-policy li {
+  margin: 0.5rem 0;
+}
+
+.policy-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+}
