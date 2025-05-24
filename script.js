@@ -45,7 +45,7 @@ class MobileMenu {
 class NewsFetcher {
   constructor() {
     this.config = {
-      API_KEY: '51c83cd1198f1a137e448732abf813ef',
+      API_KEY: 'c5db32902c48966fdc2e473eff6036bc',
       API_ENDPOINT: 'https://gnews.io/api/v4/top-headlines',
       CACHE_TTL: 300000,
       DEFAULT_LANG: 'hi'
