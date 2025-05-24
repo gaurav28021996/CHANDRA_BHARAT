@@ -61,17 +61,16 @@ body {
   z-index: 1001;
 }
 
-.logo-title {
-  font-size: 1.75rem;
+/* ===== Logo Title Color Fix ===== */
+.logo h1 {
+  color: white !important;
   font-weight: 700;
-  color: white;
-  line-height: 1.1;
+  font-size: 1.75rem;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
-.logo-subtitle {
-  font-size: 0.75rem;
-  color: white;
-  letter-spacing: 0.5px;
+.logo .logo-subtitle {
+  color: rgba(255,255,255,0.9) !important;
 }
 
 /* Mobile Menu */
