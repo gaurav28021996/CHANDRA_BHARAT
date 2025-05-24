@@ -64,13 +64,13 @@ body {
 .logo-title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: rgba(255,255,255,0.9);
+  color: white;
   line-height: 1.1;
 }
 
 .logo-subtitle {
   font-size: 0.75rem;
-  color: rgba(255,255,255,0.9);
+  color: white;
   letter-spacing: 0.5px;
 }
 
