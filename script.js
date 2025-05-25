@@ -53,7 +53,7 @@ class MobileMenu {
 // News Service with Advanced Caching
 class NewsService {
   static config = {
-    API_KEY: '51c83cd1198f1a137e448732abf813ef',
+    API_KEY: '8d7d2bf84f368daed9c6f69dc7e5ad7c',
     ENDPOINT: 'https://gnews.io/api/v4/top-headlines',
     CACHE_TTL: 300000,
     RETRY: { count: 3, delay: 1000 },
