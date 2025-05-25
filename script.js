@@ -1,8 +1,11 @@
+// Mobile Menu Controller
 class MobileMenu {
   constructor() {
-    this.menuToggle = document.querySelector('.menu-toggle');
-    this.navList = document.querySelector('.nav-list');
-    this.body = document.body;
+    this.domRef = {
+      toggle: document.querySelector('.menu-toggle'),
+      navList: document.querySelector('.nav-list'),
+      body: document.body
+    };
     this.init();
   }
 
@@ -11,249 +14,336 @@ class MobileMenu {
   }
 
   addEventListeners() {
-    this.menuToggle.addEventListener('click', (e) => this.toggleMenu(e));
+    const { toggle } = this.domRef;
+    toggle.addEventListener('click', (e) => this.toggleMenu(e));
     document.addEventListener('click', (e) => this.handleOutsideClick(e));
     window.addEventListener('resize', () => this.handleResize());
   }
 
   toggleMenu(e) {
     e.stopPropagation();
-    this.menuToggle.classList.toggle('active');
-    this.navList.classList.toggle('active');
-    this.body.style.overflow = this.navList.classList.contains('active') ? 'hidden' : 'auto';
+    const { navList, body, toggle } = this.domRef;
+    const isOpen = navList.classList.toggle('active');
+    
+    // Accessibility updates
+    toggle.setAttribute('aria-expanded', isOpen);
+    body.style.overflow = isOpen ? 'hidden' : 'auto';
   }
 
   handleOutsideClick(e) {
+    const { navList, toggle } = this.domRef;
     if (!e.target.closest('.nav') && !e.target.closest('.menu-toggle')) {
       this.closeMenu();
     }
   }
 
   handleResize() {
-    if (window.innerWidth > 768) {
-      this.closeMenu();
-    }
+    if (window.innerWidth > 768) this.closeMenu();
   }
 
   closeMenu() {
-    this.menuToggle.classList.remove('active');
-    this.navList.classList.remove('active');
-    this.body.style.overflow = 'auto';
+    const { navList, body, toggle } = this.domRef;
+    navList.classList.remove('active');
+    toggle.classList.remove('active');
+    toggle.setAttribute('aria-expanded', 'false');
+    body.style.overflow = 'auto';
   }
 }
 
-class NewsFetcher {
+// News Service with Advanced Caching
+class NewsService {
+  static config = {
+    API_KEY: 'c5db32902c48966fdc2e473eff6036bc',
+    ENDPOINT: 'https://gnews.io/api/v4/top-headlines',
+    CACHE_TTL: 300000,
+    RETRY: { count: 3, delay: 1000 },
+    PAGE_SIZE: 10,
+    FALLBACK_IMAGE: 'placeholder.jpg'
+  };
+
   constructor() {
-    this.config = {
-      API_KEY: 'c5db32902c48966fdc2e473eff6036bc',
-      API_ENDPOINT: 'https://gnews.io/api/v4/top-headlines',
-      CACHE_TTL: 300000,
-      DEFAULT_LANG: 'hi'
-    };
     this.cache = new Map();
     this.state = {
       currentCategory: 'general',
-      isFetching: false
+      pendingRequests: new Map()
     };
   }
 
   async fetchNews(category) {
-    if (this.state.isFetching) return;
-    this.state.isFetching = true;
-
-    const cacheKey = `${category}_${new Date().getMinutes()}`;
+    const cacheKey = `${category}_${Math.floor(Date.now() / NewsService.config.CACHE_TTL)}`;
     
+    // Cache-first with revalidation
+    if (this.cache.has(cacheKey)) {
+      const { data, timestamp } = this.cache.get(cacheKey);
+      if (Date.now() - timestamp < NewsService.config.CACHE_TTL) return data;
+      this.cache.delete(cacheKey);
+    }
+
+    // Request deduplication
+    if (this.state.pendingRequests.has(cacheKey)) {
+      return this.state.pendingRequests.get(cacheKey);
+    }
+
+    const controller = new AbortController();
     try {
-      if (this.cache.has(cacheKey)) {
-        return this.cache.get(cacheKey);
-      }
-
-      const response = await fetch(
-        `${this.config.API_ENDPOINT}?category=${category}&country=in&lang=${this.config.DEFAULT_LANG}&token=${this.config.API_KEY}`
-      );
-
-      if (!response.ok) throw new Error('API Error');
+      const promise = this._fetchData(category, controller.signal);
+      this.state.pendingRequests.set(cacheKey, promise);
       
-      const data = await response.json();
-      this.cache.set(cacheKey, data);
+      const data = await promise;
+      if (!data?.articles?.length) throw new Error('No articles found');
+      
+      this.cache.set(cacheKey, { data, timestamp: Date.now() });
       return data;
-    } catch (error) {
-      console.error('News fetch error:', error);
-      throw error;
     } finally {
-      this.state.isFetching = false;
+      this.state.pendingRequests.delete(cacheKey);
+    }
+  }
+
+  async _fetchData(category, signal) {
+    const params = new URLSearchParams({
+      category,
+      country: 'in',
+      lang: 'hi',
+      token: NewsService.config.API_KEY,
+      max: NewsService.config.PAGE_SIZE,
+      sortBy: 'publishedAt'
+    });
+
+    for (let attempt = 1; attempt <= NewsService.config.RETRY.count; attempt++) {
+      try {
+        const response = await fetch(`${NewsService.config.ENDPOINT}?${params}`, {
+          signal,
+          headers: { 'User-Agent': 'ChandraBharat/1.0' }
+        });
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return await response.json();
+      } catch (error) {
+        if (attempt === NewsService.config.RETRY.count || error.name === 'AbortError') throw error;
+        await new Promise(r => setTimeout(r, NewsService.config.RETRY.delay * attempt));
+      }
     }
   }
 }
 
-class UIUpdater {
+// UI Manager with Virtual DOM Techniques
+class UIManager {
   constructor() {
-    this.newsContainer = document.getElementById('news-container');
-    this.featuredSection = document.querySelector('.featured-news');
-    this.categoryTitle = document.getElementById('category-title');
-    this.navLinks = document.querySelectorAll('.nav-link');
+    this.elements = {
+      newsContainer: document.getElementById('news-container'),
+      featuredSection: document.querySelector('.featured-news'),
+      categoryTitle: document.getElementById('category-title'),
+      navLinks: document.querySelectorAll('.nav-link')
+    };
   }
 
-  async updateUI(data, category) {
+  async updateInterface(data, category) {
     try {
-      this.showLoader();
-      this.updateActiveCategory(category);
+      this.showLoadingState();
+      this.updateNavigationState(category);
+
+      if (!data?.articles?.length) return this.showEmptyState();
       
-      const featuredArticle = data.articles[0];
-      this.updateFeaturedArticle(featuredArticle);
-      this.updateNewsGrid(data.articles.slice(1));
+      const [featured, ...articles] = data.articles;
+      this.renderFeaturedArticle(featured);
+      this.renderArticleGrid(articles);
     } catch (error) {
-      this.showError();
+      this.showErrorState(error.message);
     }
   }
 
-  updateFeaturedArticle(article) {
-    this.featuredSection.innerHTML = `
+  renderFeaturedArticle(article) {
+    if (!article) return;
+    
+    this.elements.featuredSection.innerHTML = this._createFeaturedMarkup(article);
+  }
+
+  renderArticleGrid(articles) {
+    this.elements.newsContainer.innerHTML = articles.length 
+      ? articles.map(article => this._createArticleMarkup(article)).join('')
+      : this._createEmptyStateMarkup();
+  }
+
+  _createFeaturedMarkup(article) {
+    return `
       <div class="featured-card">
         <div class="featured-content">
-          <span class="category-tag">${article.source.name}</span>
-          <h2>${this.sanitizeHTML(article.title)}</h2>
-          <p>${this.sanitizeHTML(article.description || 'विवरण के लिए पूरा लेख पढ़ें')}</p>
-          <a href="${this.sanitizeHTML(article.url)}" target="_blank" rel="noopener" class="read-more">
-            पूरा लेख पढ़ें →
-          </a>
+          ${this._metaMarkup(article)}
+          <h2>${this.sanitize(article.title)}</h2>
+          <p>${this.sanitize(article.description || 'विवरण के लिए पूरा लेख पढ़ें')}</p>
+          ${this._linkMarkup(article.url)}
         </div>
         <div class="featured-media">
-          <img src="${article.image || 'placeholder.jpg'}" 
-               alt="${this.sanitizeHTML(article.title)}"
-               loading="lazy"
-               class="featured-image">
+          <img src="${this.sanitize(article.image || NewsService.config.FALLBACK_IMAGE)}" 
+               alt="${this.sanitize(article.title)}" 
+               loading="eager"
+               class="featured-image"
+               onerror="this.src='${NewsService.config.FALLBACK_IMAGE}'">
         </div>
-      </div>
-    `;
+      </div>`;
   }
 
-  updateNewsGrid(articles) {
-    this.newsContainer.innerHTML = articles.map(article => `
+  _createArticleMarkup(article) {
+    return `
       <article class="news-card">
         <div class="news-image">
-          <img src="${article.image || 'placeholder.jpg'}" 
-               alt="${this.sanitizeHTML(article.title)}"
-               loading="lazy">
+          <img src="${this.sanitize(article.image || NewsService.config.FALLBACK_IMAGE)}" 
+               alt="${this.sanitize(article.title)}" 
+               loading="lazy"
+               onerror="this.src='${NewsService.config.FALLBACK_IMAGE}'">
         </div>
         <div class="news-content">
-          <h3>${this.sanitizeHTML(article.title)}</h3>
-          <p>${this.sanitizeHTML(article.description || '')}</p>
-          <div class="article-meta">
-            <span class="source">${this.sanitizeHTML(article.source.name)}</span>
-            <span class="published-at">${new Date(article.publishedAt).toLocaleDateString('hi-IN')}</span>
-          </div>
-          <a href="${this.sanitizeHTML(article.url)}" target="_blank" rel="noopener" class="read-more">
-            अधिक पढ़ें →
-          </a>
+          <h3>${this.sanitize(article.title)}</h3>
+          <p>${this.sanitize(article.description || '')}</p>
+          ${this._metaMarkup(article)}
+          ${this._linkMarkup(article.url)}
         </div>
-      </article>
-    `).join('');
+      </article>`;
   }
 
-  sanitizeHTML(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
+  _metaMarkup(article) {
+    return `
+      <div class="article-meta">
+        <span class="source">${this.sanitize(article.source?.name || 'अज्ञात स्रोत')}</span>
+        <time datetime="${article.publishedAt}">
+          ${new Date(article.publishedAt).toLocaleDateString('hi-IN')}
+        </time>
+      </div>`;
   }
 
-  showLoader() {
-    this.newsContainer.innerHTML = `
-      <div class="loader">
+  _linkMarkup(url) {
+    return `
+      <a href="${this.sanitize(url)}" 
+         target="_blank" 
+         rel="noopener noreferrer" 
+         class="read-more">
+        अधिक पढ़ें →
+      </a>`;
+  }
+
+  showLoadingState() {
+    this.elements.newsContainer.innerHTML = `
+      <div class="loading-state" aria-live="polite">
         <div class="spinner"></div>
-        समाचार लोड हो रहे हैं...
-      </div>
-    `;
+        <p>समाचार लोड हो रहे हैं...</p>
+      </div>`;
   }
 
-  showError() {
-    this.newsContainer.innerHTML = `
-      <div class="error-message">
-        <h3>⚠️ समाचार लोड नहीं हो पाए</h3>
-        <p>कृपया बाद में पुनः प्रयास करें</p>
-        <button onclick="window.location.reload()">पुनः लोड करें</button>
-      </div>
-    `;
+  showEmptyState() {
+    this.elements.newsContainer.innerHTML = `
+      <div class="empty-state" aria-live="polite">
+        <p>📰 वर्तमान में कोई समाचार उपलब्ध नहीं है</p>
+      </div>`;
   }
 
-  updateActiveCategory(category) {
-    this.navLinks.forEach(link => {
+  showErrorState(message) {
+    this.elements.newsContainer.innerHTML = `
+      <div class="error-state" aria-live="assertive">
+        <p>⚠️ ${this.sanitize(message)}</p>
+        <button onclick="window.location.reload()">पुनः प्रयास करें</button>
+      </div>`;
+  }
+
+  updateNavigationState(category) {
+    this.elements.navLinks.forEach(link => {
       const isActive = link.dataset.category === category;
       link.classList.toggle('active', isActive);
       link.setAttribute('aria-current', isActive ? 'page' : 'false');
     });
-    this.categoryTitle.textContent = `${category} समाचार`;
+    this.elements.categoryTitle.textContent = `${category} समाचार`;
+  }
+
+  sanitize(str) {
+    return str ? str.replace(/</g, '&lt;').replace(/>/g, '&gt;') : '';
   }
 }
 
-class LanguageSwitcher {
+// Language Controller
+class LanguageController {
   constructor() {
     this.buttons = document.querySelectorAll('.lang-btn');
     this.init();
   }
 
   init() {
-    this.buttons.forEach(button => {
-      button.addEventListener('click', (e) => this.handleLanguageChange(e));
+    this.buttons.forEach(btn => {
+      btn.addEventListener('click', (e) => this.handleLanguageChange(e));
     });
   }
 
   handleLanguageChange(e) {
-    const lang = e.target.dataset.lang;
-    this.buttons.forEach(btn => btn.classList.remove('active'));
-    e.target.classList.add('active');
-    document.documentElement.lang = lang;
-    // Add language change logic here
+    const target = e.target;
+    if (target.classList.contains('active')) return;
+
+    this.buttons.forEach(btn => {
+      btn.classList.remove('active');
+      btn.setAttribute('aria-checked', 'false');
+    });
+
+    target.classList.add('active');
+    target.setAttribute('aria-checked', 'true');
+    document.documentElement.lang = target.dataset.lang;
+    // Add content translation logic here
   }
 }
 
-// Initialize Application
+// Application Bootstrap
 document.addEventListener('DOMContentLoaded', () => {
   try {
-    const mobileMenu = new MobileMenu();
-    const newsFetcher = new NewsFetcher();
-    const uiUpdater = new UIUpdater();
-    const languageSwitcher = new LanguageSwitcher();
+    const modules = {
+      menu: new MobileMenu(),
+      news: new NewsService(),
+      ui: new UIManager(),
+      lang: new LanguageController()
+    };
 
-    // Handle category clicks
-    document.querySelectorAll('.nav-link').forEach(link => {
-      link.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const category = e.target.dataset.category;
-        try {
-          const data = await newsFetcher.fetchNews(category);
-          uiUpdater.updateUI(data, category);
-        } catch (error) {
-          uiUpdater.showError();
-        }
-      });
+    // Event Delegation for Navigation
+    document.querySelector('.nav-list').addEventListener('click', async (e) => {
+      const link = e.target.closest('.nav-link');
+      if (!link) return;
+
+      e.preventDefault();
+      const category = link.dataset.category;
+      try {
+        const data = await modules.news.fetchNews(category);
+        modules.ui.updateInterface(data, category);
+      } catch (error) {
+        modules.ui.showErrorState(error.message);
+      }
     });
 
-    // Auto-refresh news
-    setInterval(async () => {
-      if (!document.hidden) {
-        try {
-          const data = await newsFetcher.fetchNews(newsFetcher.state.currentCategory);
-          uiUpdater.updateUI(data, newsFetcher.state.currentCategory);
-        } catch (error) {
-          console.error('Auto-refresh failed:', error);
-        }
+    // Auto-Refresh Mechanism
+    let refreshTimer;
+    const refreshNews = async () => {
+      if (document.hidden) return;
+      try {
+        const data = await modules.news.fetchNews(modules.news.state.currentCategory);
+        modules.ui.updateInterface(data, modules.news.state.currentCategory);
+      } catch (error) {
+        console.error('Auto-refresh failed:', error);
       }
-    }, 1800000);
+      refreshTimer = setTimeout(refreshNews, 300000);
+    };
 
-    // Initial load
-    newsFetcher.fetchNews('general')
-      .then(data => uiUpdater.updateUI(data, 'general'))
-      .catch(error => uiUpdater.showError());
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        clearTimeout(refreshTimer);
+      } else {
+        refreshNews();
+      }
+    });
+
+    // Initial Load
+    modules.news.fetchNews('general')
+      .then(data => modules.ui.updateInterface(data, 'general'))
+      .catch(error => modules.ui.showErrorState(error.message));
 
   } catch (error) {
-    console.error('Initialization error:', error);
     document.body.innerHTML = `
-      <div class="error-message">
-        <h3>⚠️ एप्लिकेशन लोड नहीं हो पाया</h3>
-        <p>कृपया पेज रीलोड करें या बाद में पुनः प्रयास करें</p>
-        <button onclick="window.location.reload()">पुनः लोड करें</button>
-      </div>
-    `;
+      <div class="fatal-error">
+        <h2>⚠️ एप्लिकेशन त्रुटि</h2>
+        <p>कृपया पेज को रीलोड करें</p>
+        <button onclick="window.location.reload()">रीलोड करें</button>
+      </div>`;
   }
 });
