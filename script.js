@@ -58,7 +58,6 @@ class NewsService {
     CACHE_TTL: 300000,
     RETRY: { count: 3, delay: 1000 },
     PAGE_SIZE: 10,
-    FALLBACK_IMAGE: 'placeholder.jpg'
   };
 
   constructor() {
