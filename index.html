@@ -2,138 +2,166 @@
 <html lang="hi" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>चंद्र भारत - ताज़ा समाचार और अपडेट</title>
-    <meta name="description" content="चंद्र भारत - भारतीय राजनीति, प्रौद्योगिकी और मनोरंजन के ताज़ा समाचारों का विश्वसनीय स्रोत">
+    <meta name="description" content="भारतीय समाचार, राजनीति, प्रौद्योगिकी और मनोरंजन के ताज़ा अपडेट">
     
-    <!-- SEO Meta Tags -->
-    <meta name="keywords" content="समाचार, भारत समाचार, ताज़ा खबर, राजनीति, प्रौद्योगिकी">
+    <!-- SEO Meta -->
+    <meta name="keywords" content="भारत समाचार, हिंदी न्यूज़, राजनीति, टेक्नोलॉजी">
     <meta property="og:title" content="चंद्र भारत समाचार">
     <meta property="og:type" content="website">
-    <meta http-equiv="Content-Security-Policy" 
-      content="default-src 'self' *.github.io">
+    
+    <!-- Preload Assets -->
+    <link rel="preload" href="style.css" as="style">
+    <link rel="preload" href="script.js" as="script">
     
     <!-- Styles -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" media="all">
     
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-    
-    <!-- AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1981253508166185"
-     crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <!-- Header -->
-    <!-- In your header section -->
-<header class="header">
-    <div class="container header-container">
-        <div class="logo">
-            <!-- Add logo image -->
-            <img src="images/logos/logo.svg" alt="चंद्र भारत लोगो" class="logo-image">
-            <div class="logo-text">
-                <h1 class="logo-title">चंद्र भारत</h1>
-                <p class="logo-subtitle">विश्वसनीय समाचार नेटवर्क</p>
+    <header class="header" role="banner">
+        <div class="container header-container">
+            <div class="logo">
+                <a href="/" class="logo-link" aria-label="मुख पृष्ठ">
+                    <img src="images/logos/logo.svg" 
+                         alt="चंद्र भारत लोगो" 
+                         class="logo-image"
+                         width="150"
+                         height="50"
+                         loading="eager">
+                    <div class="logo-text">
+                        <h1 class="logo-title">चंद्र भारत</h1>
+                        <p class="logo-subtitle">विश्वसनीय समाचार</p>
+                    </div>
+                </a>
             </div>
-        </div>
-            
+
             <!-- Navigation -->
-            <nav class="nav" aria-label="Main navigation">
-                <button class="menu-toggle" aria-label="मेनू दिखाएँ/छिपाएँ" aria-expanded="false">
-                    <span class="bar"></span>
-                    <span class="bar"></span>
-                    <span class="bar"></span>
+            <nav class="nav" aria-label="मुख्य मेनू">
+                <button class="menu-toggle" 
+                        aria-label="मेनू खोलें/बंद करें"
+                        aria-expanded="false"
+                        aria-controls="main-nav">
+                    <span class="bar" aria-hidden="true"></span>
+                    <span class="bar" aria-hidden="true"></span>
+                    <span class="bar" aria-hidden="true"></span>
                 </button>
-                <ul class="nav-list">
-                    <li><a href="#" class="nav-link active" data-category="general" aria-current="page">मुख्य</a></li>
-                    <li><a href="#" class="nav-link" data-category="politics">राजनीति</a></li>
-                    <li><a href="#" class="nav-link" data-category="technology">प्रौद्योगिकी</a></li>
-                    <li><a href="#" class="nav-link" data-category="entertainment">मनोरंजन</a></li>
-                    <li><a href="#" class="nav-link" data-category="sports">खेल</a></li>
+                
+                <ul class="nav-list" id="main-nav" role="navigation">
+                    <li role="none">
+                        <a href="#general" class="nav-link active" 
+                           data-category="general" 
+                           role="menuitem"
+                           aria-current="page">मुख्य</a>
+                    </li>
+                    <li role="none">
+                        <a href="#politics" class="nav-link" 
+                           data-category="politics" 
+                           role="menuitem">राजनीति</a>
+                    </li>
+                    <li role="none">
+                        <a href="#technology" class="nav-link" 
+                           data-category="technology" 
+                           role="menuitem">प्रौद्योगिकी</a>
+                    </li>
+                    <li role="none">
+                        <a href="#entertainment" class="nav-link" 
+                           data-category="entertainment" 
+                           role="menuitem">मनोरंजन</a>
+                    </li>
                 </ul>
             </nav>
         </div>
     </header>
 
     <!-- Language Switcher -->
-    <div class="lang-switcher">
-        <button data-lang="hi" class="lang-btn active" aria-label="हिन्दी में देखें">हिन्दी</button>
-        <button data-lang="en" class="lang-btn" aria-label="View in English">English</button>
+    <div class="lang-switcher" role="region" aria-label="भाषा चयन">
+        <div role="radiogroup" aria-labelledby="lang-label">
+            <span id="lang-label" class="visually-hidden">भाषा चुनें</span>
+            <button data-lang="hi" 
+                    class="lang-btn active" 
+                    role="radio" 
+                    aria-checked="true">हिन्दी</button>
+            <button data-lang="en" 
+                    class="lang-btn" 
+                    role="radio" 
+                    aria-checked="false">English</button>
+        </div>
     </div>
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content" role="main">
         <!-- Featured Article -->
-        <section class="featured-news" aria-labelledby="featured-title">
+        <section class="featured-news" 
+                 aria-labelledby="featured-heading" 
+                 role="region">
             <div class="container">
+                <h2 id="featured-heading" class="visually-hidden">प्रमुख समाचार</h2>
                 <div class="featured-card">
-                    <div class="featured-content">
-                        <span class="category-tag">ताज़ा खबर</span>
-                        <h2 id="featured-title">समाचार लोड हो रहे हैं...</h2>
-                        <p id="featured-description" class="featured-excerpt"></p>
-                        <a href="#" id="featured-link" class="read-more" aria-label="पूरा लेख पढ़ें">
-                            पूरा लेख पढ़ें →
-                        </a>
-                    </div>
-                    <div class="featured-media">
-                        <img id="featured-img" src="data:image/png;base64,iVBORw0KGgo..." 
-                             alt="मुख्य समाचार छवि" 
-                             loading="lazy"
-                             class="featured-image">
-                    </div>
+                    <!-- Dynamic content loaded by JS -->
                 </div>
             </div>
         </section>
 
         <!-- News Grid -->
-        <section class="category-news" aria-labelledby="category-title">
+        <section class="category-news" 
+                 aria-labelledby="category-heading" 
+                 role="region">
             <div class="container">
-                <h2 class="category-heading" id="category-title">ताज़ा अपडेट</h2>
-                <div class="news-grid" id="news-container" role="list">
-                    <div class="loader" role="alert" aria-busy="true">
-                        <div class="spinner"></div>
-                        समाचार लोड हो रहे हैं...
-                    </div>
+                <h2 id="category-heading" class="category-title">ताज़ा अपडेट</h2>
+                <div id="news-container" 
+                     class="news-grid" 
+                     role="feed" 
+                     aria-busy="true"
+                     aria-live="polite">
+                    <!-- Dynamic content loaded by JS -->
                 </div>
             </div>
         </section>
     </main>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer" role="contentinfo">
         <div class="container footer-container">
-            <div class="footer-column about-column">
-                <h3 class="footer-heading">चंद्र भारत के बारे में</h3>
-                <p class="footer-text">सटीक और समय पर समाचार अपडेट का आपका विश्वसनीय स्रोत</p>
+            <div class="footer-section" role="complementary">
+                <h3 class="footer-heading">हमारे बारे में</h3>
+                <p>सटीक और समय पर समाचार प्रदान करना</p>
             </div>
             
-            <div class="footer-column links-column">
-                <h3 class="footer-heading">त्वरित लिंक</h3>
-                <ul class="footer-links" role="list">
-                    <li><a href="#privacy-policy.html" class="footer-link">गोपनीयता नीति</a></li>
-                    <li><a href="#terms" class="footer-link">सेवा की शर्तें</a></li>
-                    <li><a href="#careers" class="footer-link">करियर</a></li>
+            <div class="footer-section" role="navigation" aria-label="उपयोगी लिंक">
+                <h3 class="footer-heading">जल्दी लिंक</h3>
+                <ul class="footer-links">
+                    <li><a href="/privacy" class="footer-link">गोपनीयता नीति</a></li>
+                    <li><a href="/terms" class="footer-link">नियम और शर्तें</a></li>
                 </ul>
             </div>
             
-            <div class="footer-column newsletter-column">
-                <h3 class="footer-heading">नवीनतम अपडेट पाएं</h3>
-                <form class="subscribe-form" aria-label="सब्सक्राइब फॉर्म">
-                    <input type="email" class="subscribe-input" 
-                           placeholder="ईमेल दर्ज करें" 
-                           required
-                           aria-required="true">
+            <div class="footer-section" role="form" aria-label="सदस्यता फॉर्म">
+                <h3 class="footer-heading">न्यूज़लेटर</h3>
+                <form class="newsletter-form">
+                    <input type="email" 
+                           class="email-input"
+                           placeholder="ईमेल पता"
+                           aria-label="ईमेल पता"
+                           required>
                     <button type="submit" class="subscribe-btn">सब्सक्राइब</button>
                 </form>
             </div>
         </div>
         
         <div class="copyright">
-            <p class="copyright-text">© २०२४ चंद्र भारत। सर्वाधिकार सुरक्षित।</p>
+            <p>© 2024 चंद्र भारत. सर्वाधिकार सुरक्षित.</p>
         </div>
     </footer>
 
     <!-- Scripts -->
-    <script src="script.js" defer></script>
+    <script src="script.js" defer async></script>
 </body>
 </html>
